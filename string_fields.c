@@ -10,21 +10,40 @@
  */
 char *get_precision(char *p, params_t *params, va_list ap)
 {
-	int d = 0;
-
-	if (*p != '.')
-		return (p);
-	p++;
-	if (*p == '*')
+	int precision = 0;
+	
+	/* If precision is specified in the format string */
+	if (*p == '.')
 	{
-		d = va_arg(ap, int);
 		p++;
+		
+		/* Check for the precision value */
+		if (*p == '*')
+		{
+			/* Precision value is passed as an argument */
+			precision = va_arg(ap, int);
+			
+			if (precision < 0)
+			{
+				/* If precision is negative, ignore it */
+				precision = 0;
+			}
+			
+			p++;
+		}
+		else
+		{
+			/* Parse the precision value from the format string */
+			while (_isdigit(*p))
+			{
+				precision = precision * 10 + (*p - '0');
+				p++;
+			}
+		}
 	}
-	else
-	{
-		while (_isdigit(*p))
-			d = d * 10 + (*p++ - '0');
-	}
-	params->precision = d;
-	return (p);
+	
+	/* Update the precision in the parameters struct */
+	params->precision = precision;
+	
+	return p;
 }
